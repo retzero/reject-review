@@ -7,3 +7,4 @@ runs:
     - name: Member assign
       run: |
         gh issue edit "${{ github.event.issue.number }}" --add-assignee retzero
+      shell: bash

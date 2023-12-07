@@ -34,7 +34,9 @@ runs:
         while IFS=',' read -ra ADDR; do
           for i in "${ADDR[@]}"; do
             echo "Check Comment: [${i}]"
-            if [[ "${{ github.event.comment }}" == *"${i}"* ]]; then
+            pr_comment=$(echo "${{ github.event.comment }}" | tr '[:upper:]' '[:lower:]')
+            filter=$(echo "${i}" | tr '[:upper:]' '[:lower:]')
+            if [[ "${pr_comment}" == *"${filter}"* ]]; then
               echo " -> O"
               gh pr close ${{ github.event.pull_request.number }} -c "Auto-closing based on review comment."
               break

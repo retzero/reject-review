@@ -8,42 +8,40 @@ inputs:
   authors:
     description: 'By whom? Comma separated GitHub ID.'
     required: true
+  auto-close-pr:
+    description: 'Where or not to close PR.'
+    default: false
+
 runs:
   using: 'composite'
   steps:
-    - name: Check username
+    - name: Check review comment user
+      continue-on-error: true
       id: user-check
       run: |
         while IFS=',' read -ra ADDR; do
           for i in "${ADDR[@]}"; do
-            echo "Check User: [${i}]"
             if [ "${i}" == "${{ github.event.comment.user.login }}" ]; then
-              echo " -> O"
               echo "desired-user=true" >> ${GITHUB_OUTPUT}
               break
-            else
-              echo " -> X"
             fi
           done
         done <<< "${{ inputs.authors }}"
       shell: bash
 
-    - name: Member assign
+    - name: Check review comment
       if: steps.user-check.outputs.desired-user == 'true'
       run: |
         while IFS=',' read -ra ADDR; do
           for i in "${ADDR[@]}"; do
-            echo "Check Comment: [${i}]"
             pr_comment=$(echo "${{ github.event.comment.body }}" | tr '[:upper:]' '[:lower:]')
             filter=$(echo "${i}" | tr '[:upper:]' '[:lower:]')
-            echo "  :: PR Comment: [${pr_comment}]"
-            echo "  :: Input Filter: [${filter}]"
             if [[ "${pr_comment}" == *"${filter}"* ]]; then
-              echo " -> O"
-              gh pr close ${{ github.event.pull_request.number }} -c "Auto-closing based on review comment."
-              break
-            else
-              echo " -> X"
+              if [ "${{ inputs.auto-close-pr }}" == "true" ]; then
+                gh pr close ${{ github.event.pull_request.number }} -c "Auto-closing based on review comment."
+              fi
+              echo "Please check the comment posted by ${{ github.event.comment.user.login }}."
+              exit 1
             fi
           done
         done <<< "${{ inputs.filters }}"

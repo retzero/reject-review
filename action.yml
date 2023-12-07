@@ -10,5 +10,5 @@ runs:
         git branch
         git log -n1
         gh version
-        gh pr comment ${{ github.event.issue.number }} --body "Looks good!"
+        gh pr comment ${{ github.event.number }} --body "Looks good!"
       shell: bash

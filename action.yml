@@ -1,0 +1,9 @@
+name: 'Reject PR review'
+description: 'Reject PR review'
+author: 'retzero'
+runs:
+  using: 'composite'
+  steps:
+    - name: Member assign
+      run: |
+        gh issue edit "${{ github.event.issue.number }}" --add-assignee retzero

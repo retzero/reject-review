@@ -6,5 +6,9 @@ runs:
   steps:
     - name: Member assign
       run: |
+        set -x
+        git branch
+        git log -n1
+        gh version
         gh pr comment ${{ github.event.issue.number }} --body "Looks good!"
       shell: bash

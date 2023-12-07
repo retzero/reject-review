@@ -8,7 +8,7 @@ runs:
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
       run: |
-        echo "${{ github.pull_request.head.number }}"
+        echo "${{ github.event.pull_request.head.number }}"
         echo "${{ github.event.comment.body }}"
         echo "${{ github.event.comment }}"
       shell: bash

@@ -34,7 +34,7 @@ runs:
         while IFS=',' read -ra ADDR; do
           for i in "${ADDR[@]}"; do
             echo "Check Comment: [${i}]"
-            pr_comment=$(echo "${{ github.event.comment }}" | tr '[:upper:]' '[:lower:]')
+            pr_comment=$(echo "${{ github.event.comment.body }}" | tr '[:upper:]' '[:lower:]')
             filter=$(echo "${i}" | tr '[:upper:]' '[:lower:]')
             echo "  :: PR Comment: [${pr_comment}]"
             echo "  :: Input Filter: [${filter}]"

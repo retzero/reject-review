@@ -36,6 +36,8 @@ runs:
             echo "Check Comment: [${i}]"
             pr_comment=$(echo "${{ github.event.comment }}" | tr '[:upper:]' '[:lower:]')
             filter=$(echo "${i}" | tr '[:upper:]' '[:lower:]')
+            echo "  :: PR Comment: [${pr_comment}]"
+            echo "  :: Input Filter: [${filter}]"
             if [[ "${pr_comment}" == *"${filter}"* ]]; then
               echo " -> O"
               gh pr close ${{ github.event.pull_request.number }} -c "Auto-closing based on review comment."

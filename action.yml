@@ -8,7 +8,6 @@ runs:
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
       run: |
-        export
         echo "${{ github.event.pull_request.number }}"
         echo "${{ github.event.comment.body }}"
         echo "${{ github.event.comment }}"
@@ -19,5 +18,5 @@ runs:
         git branch
         git log -n1
         gh version
-        gh pr comment ${{ github.pull_request.head.number }} --body "Looks good!"
+        gh pr comment ${{ github.event.pull_request.number }} --body "Looks good!"
       shell: bash

@@ -1,22 +1,46 @@
 name: 'Reject PR review'
 description: 'Reject PR review'
 author: 'retzero'
+inputs:
+  filters:
+    description: 'What to reject. Comma separated strings.'
+    default: '!NOT-PERMITTED!'
+  authors:
+    description: 'By whom? Comma separated GitHub ID.'
+    required: true
 runs:
   using: 'composite'
   steps:
-    - name: Dump GitHub context
-      env:
-        GITHUB_CONTEXT: ${{ toJson(github) }}
+    - name: Check username
+      id: user-check
       run: |
-        echo "${{ github.event.pull_request.number }}"
-        echo "${{ github.event.comment.body }}"
-        echo "${{ github.event.comment }}"
+        while IFS=',' read -ra ADDR; do
+          for i in "${ADDR[@]}"; do
+            echo "Check User: [${i}]"
+            if [ "${i}" == "${{ github.event.comment.user.login }}" ]; then
+              echo " -> O"
+              echo "desired-user=true" >> ${GITHUB_OUTPUT}
+              break
+            else
+              echo " -> X"
+            fi
+          done
+        done <<< "${{ inputs.authors }}"
       shell: bash
+
     - name: Member assign
+      if: steps.user-check.outputs.desired-user == 'true'
       run: |
-        set -x
-        git branch
-        git log -n1
-        gh version
-        gh pr comment ${{ github.event.pull_request.number }} --body "Looks good!"
+        while IFS=',' read -ra ADDR; do
+          for i in "${ADDR[@]}"; do
+            echo "Check Comment: [${i}]"
+            if [[ "${{ github.event.comment }}" == *"${i}"* ]]; then
+              echo " -> O"
+              gh pr close ${{ github.event.pull_request.number }} -c "Auto-closing based on review comment."
+              break
+            else
+              echo " -> X"
+            fi
+          done
+        done <<< "${{ inputs.filter }}"
       shell: bash
